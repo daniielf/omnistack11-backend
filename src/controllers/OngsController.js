@@ -22,14 +22,16 @@ module.exports = {
     return resp.json(dbResp);
   },
 
-  // GET
-  FIND_BYID: async (req, resp) => {
-    const dbResp = await conn(DB_NAME).where('id', req.query.id).select('*').first();
-    return resp.json(dbResp);
+  // CONTROLLER - ONLY
+  FIND_BYID: async (id) => {
+    if (!id) return null;
+    const dbResp = await conn(DB_NAME).where('id', id).select('*').first();
+    return dbResp;
   },
 
   // GET
   ALL: async (req, resp) => {
+    console.log('REQ CALLED');
     const dbResp = await conn(DB_NAME).select('*');
     return resp.json(dbResp);
   }
