@@ -1,30 +1,46 @@
 const conn = require('../connection');
-const crypto = require('crypto');
 const DB_NAME = 'incidents';
 
 module.exports = {
-  CREATE: async (title, description, value, ong_id) => {
-    return conn(DB_NAME).insert({title, description, value, ong_id});
+  // POST - Route /create
+  CREATE: async (req, resp) => {
+    const {title, description, value, ong_id} = req.body;
+    try {
+      const dbResp = await conn(DB_NAME).insert({title, description, value, ong_id});
+      return resp.json(dbResp);
+    } catch(e) {
+      return resp.json(e);
+    }
   },
 
-  FIND_BYONG: async (ong_id) => {
-    console.log('ongID', ong_id);
-    return conn(DB_NAME).where('ong_id', ong_id).select('*');
+  // GET - Route /list
+  FIND_BYONG: async (req, resp) => {
+    const dbResp = await conn(DB_NAME).where('ong_id', req.query.ong_id).select('*');
+    return resp.json(dbResp);
   },
 
-  SEARCH: async (ong_id, query) => {
-    return conn(DB_NAME).where({ong_id, ...query}).select('*');
+  // POST - Route /search
+  SEARCH: async (req, resp) => {
+    const { ong_id } = req.query;
+    const query = req.body;
+    const dbResp = await conn(DB_NAME).where({ong_id, ...query}).select('*');
+    return resp.json(dbResp);
   },
 
-  FIND: async (query) => {
-    return conn(DB_NAME).where(query).select('*');
+  // GET - Route /
+  // FIND: async (query) => {
+  //   return conn(DB_NAME).where(query).select('*');
+  // },
+
+  // GET - Route /find
+  FIND_BYID: async (req, resp) => {
+    const dbResp = await conn(DB_NAME).where('id', req.query.id).select('*').first();
+    return resp.json(dbResp);
   },
 
-  FIND_BYID: async (id) => {
-    return conn(DB_NAME).where('id', id).select('*').first();
-  },
-
-  ALL: async () => {
-    return conn(DB_NAME).select('*');
+  // GEt - Route /all
+  ALL: async (req, resp) => {
+    const dbResp = await conn(DB_NAME).select('*');
+    return resp.json(dbResp);
   }
 };

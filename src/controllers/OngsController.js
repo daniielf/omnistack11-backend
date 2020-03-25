@@ -3,20 +3,34 @@ const crypto = require('crypto');
 const DB_NAME = 'ongs';
 
 module.exports = {
-  CREATE: async (name, email, whatsapp, city, uf) => {
+  // POST
+  CREATE: async (req, resp) => {
     const hexId = crypto.randomBytes(4).toString('HEX');
-    return conn(DB_NAME).insert({id: hexId, name, email, whatsapp, city, uf});
+    const body = req.body;
+    try {
+      const dbResp = await conn(DB_NAME).insert({id: hexId, ...body});
+      return resp.json(dbResp);
+    } catch(e) {
+      return resp.json(e);
+    }
   },
 
-  FIND: async (query) => {
-    return conn(DB_NAME).where(query).select('*');
+  // POST
+  SEARCH: async (req, resp) => {
+    const query = req.body;
+    const dbResp = await conn(DB_NAME).where(query).select('*');
+    return resp.json(dbResp);
   },
 
-  FIND_BYID: async (id) => {
-    return conn(DB_NAME).where('id', id).select('*').first();
+  // GET
+  FIND_BYID: async (req, resp) => {
+    const dbResp = await conn(DB_NAME).where('id', req.query.id).select('*').first();
+    return resp.json(dbResp);
   },
 
-  ALL: async () => {
-    return conn(DB_NAME).select('*');
+  // GET
+  ALL: async (req, resp) => {
+    const dbResp = await conn(DB_NAME).select('*');
+    return resp.json(dbResp);
   }
 };
